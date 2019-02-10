@@ -93,7 +93,7 @@ func (s *Server) GetHandler() *mux.Router {
 	api.HandleFunc("/backends", s.getBackends)
 
 	// High-level query layer
-	r.HandleFunc("/search/{queryName}", s.HandleQuery)
+	r.HandleFunc(`/search/{queryName:[a-zA-Z0-9=\-\/]+}`, s.HandleQuery)
 
 	return r
 }

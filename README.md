@@ -42,7 +42,7 @@ Here's an example search, against a cluster pre-loaded with [Kibana's sample Sha
 ```yaml
 backend: main
 index: shakespeare
-name: LinesBySpeaker
+name: shakespeare/LinesBySpeaker
 source: |
   bool:
     filter:
@@ -68,7 +68,7 @@ With this defined, you can start Radiant and use your defined query:
 ```bash
 radiant serve radiant.yaml
 
-curl -H"Content-Type: application/json" "localhost:5000/search/LinesBySpeaker?from=0&size=1" -d '{"speaker": "DEMETRIUS", "query": "sick"}' | jq .
+curl -H"Content-Type: application/json" "localhost:5000/search/shakespeare/LinesBySpeaker?from=0&size=1" -d '{"speaker": "DEMETRIUS", "query": "sick"}' | jq .
 {
   "took": 40,
   "hits": {
