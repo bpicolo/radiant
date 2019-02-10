@@ -48,10 +48,11 @@ source: |
     filter:
       term:
         speaker: "{{ .speaker }}"
-    {{ if .query}}
+  {{ if .query}}
+    must:
       term:
         text_entry: "{{ .query }}"
-    {{ end }}
+  {{ end }}
 ```
 
 Place this anywhere you desire in your `./searches` directory, e.g.
@@ -62,32 +63,31 @@ searches/
         LinesBySpeaker.yaml
 ```
 
-
 With this defined, you can start Radiant and use your defined query:
 
 ```bash
 radiant serve radiant.yaml
 
-curl -H"Content-Type: application/json" "localhost:5000/search/LinesBySpeaker?from=0&size=5" -d '{"speaker": "DEMETRIUS", "query": "sick"}' | jq .
+curl -H"Content-Type: application/json" "localhost:5000/search/LinesBySpeaker?from=0&size=1" -d '{"speaker": "DEMETRIUS", "query": "sick"}' | jq .
 {
-  "took": 6,
+  "took": 40,
   "hits": {
-    "total": 152,
-    "max_score": 0,
+    "total": 1,
+    "max_score": 5.746283,
     "hits": [
       {
-        "_score": 0,
+        "_score": 5.746283,
         "_index": "shakespeare",
         "_type": "doc",
-        "_id": "1908",
+        "_id": "67587",
         "_source": {
           "type": "line",
-          "line_id": 1909,
-          "play_name": "Henry IV",
-          "speech_number": 3,
-          "line_number": "3.2.77",
-          "speaker": "KING HENRY IV",
-          "text_entry": "As, sick and blunted with community,"
+          "line_id": 67588,
+          "play_name": "A Midsummer nights dream",
+          "speech_number": 28,
+          "line_number": "2.1.216",
+          "speaker": "DEMETRIUS",
+          "text_entry": "For I am sick when I do look on thee."
         }
       }
     ]
@@ -99,5 +99,3 @@ curl -H"Content-Type: application/json" "localhost:5000/search/LinesBySpeaker?fr
   }
 }
 ```
-
-
