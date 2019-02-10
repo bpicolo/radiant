@@ -1,11 +1,14 @@
 package backend
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http/httputil"
 	"net/url"
 	"strings"
 
+	"github.com/bpicolo/radiant/pkg/query"
 	"github.com/bpicolo/radiant/pkg/schema"
 	"github.com/olivere/elastic"
 )
@@ -61,6 +64,18 @@ func NewV6Backend(b *schema.Backend) (*V6Backend, error) {
 			proxy: httputil.NewSingleHostReverseProxy(proxyHost),
 		},
 	}, nil
+}
+
+// Search performs an es query against a es 6 backend
+func (b *V6Backend) Search(q *query.Query) (*elastic.SearchResult, error) {
+	ctx := context.Background()
+
+	log.Println("Performing search")
+	log.Println(q.ESQuery)
+	return b.client.Search().Query(elastic.NewRawStringQuery(q.ESQuery)).
+		Index(q.Search.Query.Index).
+		From(q.Search.From).
+		Size(q.Search.Size).Do(ctx)
 }
 
 // Stop shuts down the client

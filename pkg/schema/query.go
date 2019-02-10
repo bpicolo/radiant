@@ -4,7 +4,7 @@ package schema
 // which is go-templated json, yaml, as well as lua-scripted
 type Query struct {
 	Name    string `yaml:"name"`
-	Cluster string `yaml:"cluster"`
+	Backend string `yaml:"backend"`
 	Index   string `yaml:"index"`
 	Type    string `yaml:"type"`
 	Source  string `yaml:"source"`

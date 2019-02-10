@@ -12,15 +12,15 @@ type Engine struct {
 
 func NewEngine() *Engine {
 	interpreters := make(map[string]Interpreter)
-	interpreters[""] = &JsonInterpreter{}
-	interpreters["json"] = &JsonInterpreter{}
+	interpreters[""] = &YamlInterpreter{}
+	interpreters["yaml"] = &YamlInterpreter{}
 
 	return &Engine{
 		interpreters: interpreters,
 	}
 }
 
-func (q *Engine) Interpret(search schema.Search) (*Query, error) {
+func (q *Engine) Interpret(search *schema.Search) (*Query, error) {
 	interpreter, ok := q.interpreters[search.Query.Type]
 	if !ok {
 		return nil, fmt.Errorf("Don't know how to interpret query of type %s", search.Query.Type)

@@ -8,6 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/olivere/elastic"
+
+	"github.com/bpicolo/radiant/pkg/query"
 	"github.com/bpicolo/radiant/pkg/schema"
 	version "github.com/hashicorp/go-version"
 )
@@ -30,6 +33,8 @@ func (b *backend) Proxy() *httputil.ReverseProxy {
 
 // Backend represents an elasticsearch backend
 type Backend interface {
+	// All searches are normalized to elastic 6 search results
+	Search(q *query.Query) (*elastic.SearchResult, error)
 	Backend() *backend
 	Stop()
 }
