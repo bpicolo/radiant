@@ -2,13 +2,16 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/bpicolo/radiant/pkg/backend"
+	"github.com/bpicolo/radiant/pkg/config"
 	"github.com/bpicolo/radiant/pkg/query"
 	"github.com/bpicolo/radiant/pkg/storage"
 	"github.com/gorilla/mux"
@@ -19,30 +22,6 @@ type Server struct {
 	manager *backend.Manager
 	store   storage.Store
 	engine  *query.Engine
-}
-
-func NewServerFromYAML(config string) (*Server, error) {
-	store, err := storage.NewYaml(config)
-	if err != nil {
-		return nil, err
-	}
-	return &Server{
-		manager: backend.NewManager(),
-		store:   store,
-		engine:  query.NewEngine(),
-	}, nil
-}
-
-// GetHandler returns the default http handler
-func (s *Server) GetHandler() *mux.Router {
-	r := mux.NewRouter()
-	r.HandleFunc("/query/{queryName}", s.HandleQuery)
-
-	api := r.PathPrefix("/api/v1").Subrouter()
-
-	api.HandleFunc("/backends", s.GetBackends)
-
-	return r
 }
 
 func (s *Server) Shutdown() {
@@ -78,13 +57,65 @@ func (s *Server) Serve(bind string) {
 	os.Exit(0)
 }
 
-type backendsResponse struct {
-	backends []*schema.Backend
+func NewServer(cfg *config.RadiantConfig) (*Server, error) {
+	store, err := storage.NewStatic(cfg)
+	if err != nil {
+		return nil, err
+	}
+	mgr := backend.NewManager()
+	for _, backend := range cfg.Backends {
+		err := mgr.AddBackend(backend)
+		if err != nil {
+			log.Println("Error adding backend", err)
+		}
+	}
+
+	return &Server{
+		manager: mgr,
+		store:   store,
+		engine:  query.NewEngine(),
+	}, nil
 }
 
-func (s *Server) GetBackends(w http.ResponseWriter, r *http.Request) {
+// GetHandler returns the default http handler
+func (s *Server) GetHandler() *mux.Router {
+	r := mux.NewRouter()
+
+	// Transparent ES Proxy
+	r.PathPrefix("/").HeadersRegexp("Radiant-Proxy-Backend", ".*").HandlerFunc(s.proxy)
+
+	// Radiant api
+	api := r.PathPrefix("/api/v1").Subrouter()
+	api.HandleFunc("/backends", s.getBackends)
+
+	// High-level query layer
+	r.HandleFunc("/query/{queryName}", s.HandleQuery)
+
+	return r
+}
+
+func (s *Server) proxy(w http.ResponseWriter, r *http.Request) {
+	name := strings.TrimSpace(r.Header.Get("Radiant-Proxy-Backend"))
+	backend := s.manager.GetBackend(name)
+	if backend == nil {
+		http.Error(
+			w,
+			fmt.Sprintf("Backend %s not found", name),
+			http.StatusServiceUnavailable,
+		)
+		return
+	}
+
+	backend.Backend().Proxy().ServeHTTP(w, r)
+}
+
+// type backendsResponse struct {
+// 	backends []*schema.Backend
+// }
+
+func (s *Server) getBackends(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Write()
+	// w.Write()
 }
 
 func (s *Server) HandleQuery(w http.ResponseWriter, r *http.Request) {

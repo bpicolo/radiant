@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/http/httputil"
 	"strings"
 	"time"
 
@@ -19,12 +20,21 @@ type esInfo struct {
 	Version esVersionInfo `json:"version"`
 }
 
+type backend struct {
+	proxy *httputil.ReverseProxy
+}
+
+func (b *backend) Proxy() *httputil.ReverseProxy {
+	return b.proxy
+}
+
 // Backend represents an elasticsearch backend
 type Backend interface {
+	Backend() *backend
 	Stop()
 }
 
-func discover(b schema.Backend) (Backend, error) {
+func discover(b *schema.Backend) (Backend, error) {
 	hosts := strings.Split(b.Host, ",")
 	if len(hosts) < 1 {
 		return nil, errors.New("Empty hosts: nothing to discover")
@@ -53,11 +63,11 @@ func getInfo(host string) (*esInfo, error) {
 	}
 	defer r.Body.Close()
 
-	var info *esInfo
-	err = json.NewDecoder(r.Body).Decode(info)
+	info := esInfo{}
+	err = json.NewDecoder(r.Body).Decode(&info)
 	if err != nil {
 		return nil, err
 	}
 
-	return info, nil
+	return &info, nil
 }

@@ -21,7 +21,7 @@ func NewManager() *Manager {
 }
 
 // AddBackend adds a supported backend to the backend manager
-func (m *Manager) AddBackend(backend schema.Backend) error {
+func (m *Manager) AddBackend(backend *schema.Backend) error {
 	b, err := discover(backend)
 	if err != nil {
 		return err
@@ -29,6 +29,10 @@ func (m *Manager) AddBackend(backend schema.Backend) error {
 
 	m.backends[backend.Name] = b
 	return nil
+}
+
+func (m *Manager) GetBackend(name string) Backend {
+	return m.backends[name]
 }
 
 func (m *Manager) Stop() {
