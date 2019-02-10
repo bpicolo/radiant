@@ -99,3 +99,25 @@ curl -H"Content-Type: application/json" "localhost:5000/search/shakespeare/Lines
   }
 }
 ```
+
+A command is also provided to try out your query templates while developing.
+
+```bash
+radiant query-check searches/shakespeare/speaker.yaml '{"query": ["bob"], "speaker": "Dave"}' | jq .
+{
+  "bool": {
+    "filter": {
+      "term": {
+        "speaker": "Dave"
+      }
+    },
+    "must": {
+      "terms": {
+        "text_entry": [
+          "bob"
+        ]
+      }
+    }
+  }
+}
+```
