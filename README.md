@@ -50,8 +50,8 @@ source: |
         speaker: "{{ .speaker }}"
   {{ if .query}}
     must:
-      term:
-        text_entry: "{{ .query }}"
+      terms:
+        text_entry: {{ .query | toJson}}
   {{ end }}
 ```
 
@@ -68,26 +68,26 @@ With this defined, you can start Radiant and use your defined query:
 ```bash
 radiant serve radiant.yaml
 
-curl -H"Content-Type: application/json" "localhost:5000/search/shakespeare/LinesBySpeaker?from=0&size=1" -d '{"speaker": "DEMETRIUS", "query": "sick"}' | jq .
+curl -H"Content-Type: application/json" "localhost:5000/search/shakespeare/LinesBySpeaker?from=0&size=1" -d '{"speaker": "DEMETRIUS", "query": ["thee", "no"]}' | jq .
 {
-  "took": 40,
+  "took": 18,
   "hits": {
-    "total": 1,
-    "max_score": 5.746283,
+    "total": 20,
+    "max_score": 1,
     "hits": [
       {
-        "_score": 5.746283,
+        "_score": 1,
         "_index": "shakespeare",
         "_type": "doc",
-        "_id": "67587",
+        "_id": "67569",
         "_source": {
           "type": "line",
-          "line_id": 67588,
+          "line_id": 67570,
           "play_name": "A Midsummer nights dream",
-          "speech_number": 28,
-          "line_number": "2.1.216",
+          "speech_number": 24,
+          "line_number": "2.1.198",
           "speaker": "DEMETRIUS",
-          "text_entry": "For I am sick when I do look on thee."
+          "text_entry": "Hence, get thee gone, and follow me no more."
         }
       }
     ]
