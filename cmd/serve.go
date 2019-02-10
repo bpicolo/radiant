@@ -49,6 +49,9 @@ func configureSearches(cfg *config.RadiantConfig, searchDir string) {
 	err := filepath.Walk(
 		searchDir,
 		func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return nil
+			}
 			if info.IsDir() {
 				return nil
 			}
