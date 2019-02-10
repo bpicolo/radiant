@@ -1,8 +1,7 @@
 # Radiant
 
 Radiant is a service abstraction that enables you to facilitate communication with many potential
-Elasticsearch servers. In addition to providing transparent proxies to those clusters, it allows you
-to create simple, shareable query endpoints to simplify querying from a variety of sources.
+Elasticsearch cluster. The primary goal of Radiant is to enable shareable query endpoints to simplify querying from a variety of sources. In addition, it provide built-in support transparent proxies to the registered ES clusters.
 
 ## Installation
 
@@ -30,11 +29,28 @@ With backends set up, you can run Radiant and query your hosts.
 radiant serve radiant.yaml &
 
 curl -H"Radiant-Proxy-Backend: main" localhost:5000
+{
+  "name" : "<name>",
+  "cluster_name" : "docker-cluster",
+  "cluster_uuid" : "<uuid>",
+  "version" : {
+    "number" : "6.6.0",
+    "build_flavor" : "default",
+    "build_type" : "tar",
+    "build_hash" : "a9861f4",
+    "build_date" : "2019-01-24T11:27:09.439740Z",
+    "build_snapshot" : false,
+    "lucene_version" : "7.6.0",
+    "minimum_wire_compatibility_version" : "5.6.0",
+    "minimum_index_compatibility_version" : "5.0.0"
+  },
+  "tagline" : "You Know, for Search"
+}
 ```
 
 ## Defining a search API
 
-Radiant allows you to define new search endpoints with simple YAML configurations. The default search directory for search definitions
+The primary goal of Radiant is to provide shared search APIs to simplify the usage and updating of queries from a variety of different services in your infrastructure. Radiant allows you to define new search endpoints with simple YAML configurations. The default search directory for search definitions
 is `./searches`.
 
 Here's an example search, against a cluster pre-loaded with [Kibana's sample Shakespeare data](https://www.elastic.co/guide/en/kibana/current/tutorial-load-dataset.html):
@@ -63,7 +79,9 @@ searches/
         LinesBySpeaker.yaml
 ```
 
-With this defined, you can start Radiant and use your defined query:
+With this defined, you can start Radiant and use your defined query. Radiant does not attempt to change
+the query to match the target ES host's query DSL - your query source must use the DSL supported by the
+ES backend's version.
 
 ```bash
 radiant serve radiant.yaml
