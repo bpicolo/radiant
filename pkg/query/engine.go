@@ -21,9 +21,9 @@ func NewEngine() *Engine {
 }
 
 func (q *Engine) Interpret(search *schema.Search) (*Query, error) {
-	interpreter, ok := q.interpreters[search.Query.Type]
+	interpreter, ok := q.interpreters[search.QueryDefinition.Type]
 	if !ok {
-		return nil, fmt.Errorf("Don't know how to interpret query of type %s", search.Query.Type)
+		return nil, fmt.Errorf("Don't know how to interpret query of type %s", search.QueryDefinition.Type)
 	}
 
 	return interpreter.Interpret(search)

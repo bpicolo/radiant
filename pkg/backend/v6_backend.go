@@ -73,7 +73,7 @@ func (b *V6Backend) Search(q *query.Query) (*elastic.SearchResult, error) {
 	log.Println("Performing search")
 	log.Println(q.ESQuery)
 	return b.client.Search().Query(elastic.NewRawStringQuery(q.ESQuery)).
-		Index(q.Search.Query.Index).
+		Index(q.Search.QueryDefinition.Index).
 		From(q.Search.From).
 		Size(q.Search.Size).Do(ctx)
 }

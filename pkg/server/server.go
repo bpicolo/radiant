@@ -27,6 +27,7 @@ type Server struct {
 	engine  *query.Engine
 }
 
+// Shutdown the server
 func (s *Server) Shutdown() {
 	s.manager.Stop()
 }
@@ -60,6 +61,7 @@ func (s *Server) Serve(bind string) {
 	os.Exit(0)
 }
 
+// NewServer creates a new server object given it's configuration
 func NewServer(cfg *config.RadiantConfig) (*Server, error) {
 	store, err := storage.NewStatic(cfg)
 	if err != nil {
@@ -119,12 +121,12 @@ func (s *Server) getBackends(w http.ResponseWriter, r *http.Request) {
 }
 
 type errorResponse struct {
-	Error error `json:"error"`
+	Error string `json:"error"`
 }
 
 func jsonError(w http.ResponseWriter, err error, code int) {
 	w.Header().Set("Content-Type", "application/json")
-	resp, _ := json.Marshal(&errorResponse{Error: err})
+	resp, _ := json.Marshal(&errorResponse{Error: err.Error()})
 	http.Error(w, string(resp), code)
 }
 
@@ -137,7 +139,7 @@ func (s *Server) HandleQuery(w http.ResponseWriter, r *http.Request) {
 		queryName = alias.Name
 	}
 
-	query, err := s.store.GetQuery(queryName)
+	query, err := s.store.GetQueryDefinition(queryName)
 	if err != nil {
 		jsonError(w, err, http.StatusNotFound)
 		return
@@ -159,10 +161,15 @@ func (s *Server) HandleQuery(w http.ResponseWriter, r *http.Request) {
 	}
 
 	search := &schema.Search{
-		Query:   query,
-		Context: ctx,
-		From:    parseInt(r.URL.Query().Get("from"), 0),
-		Size:    parseInt(r.URL.Query().Get("size"), 20),
+		QueryDefinition: query,
+		Context:         ctx,
+		From:            parseInt(r.URL.Query().Get("from"), 0),
+		Size:            parseInt(r.URL.Query().Get("size"), 20),
+	}
+	err = search.Validate()
+	if err != nil {
+		jsonError(w, err, http.StatusBadRequest)
+		return
 	}
 
 	esQuery, err := s.engine.Interpret(search)
@@ -180,7 +187,7 @@ func (s *Server) HandleQuery(w http.ResponseWriter, r *http.Request) {
 func parseInt(i string, defaultV int) int {
 	if s, err := strconv.ParseInt(i, 10, 32); err == nil {
 		return int(s)
-	} else {
-		return defaultV
 	}
+
+	return defaultV
 }

@@ -15,10 +15,10 @@ type YamlInterpreter struct {
 
 func (i *YamlInterpreter) Interpret(search *schema.Search) (*Query, error) {
 	tmpl := template.
-		New(search.Query.Name).
+		New(search.QueryDefinition.Name).
 		Funcs(sprig.TxtFuncMap())
 
-	tmpl, err := tmpl.Parse(search.Query.Source)
+	tmpl, err := tmpl.Parse(search.QueryDefinition.QuerySource)
 	if err != nil {
 		return nil, err
 	}

@@ -26,7 +26,7 @@ var queryCheck = &cobra.Command{
 		if err != nil {
 			log.Fatalf("Error parsing context: %s", err)
 		}
-		search, err := engine.Interpret(&schema.Search{Query: qry, Context: ctx})
+		search, err := engine.Interpret(&schema.Search{QueryDefinition: qry, Context: ctx})
 		if err != nil {
 			log.Fatalf("Error templating query: %s", err)
 		}

@@ -25,7 +25,7 @@ func (s *Static) GetAlias(name string) (*schema.Alias, error) {
 	return nil, fmt.Errorf("Alias `%s` not found", name)
 }
 
-func (s *Static) GetQuery(name string) (*schema.Query, error) {
+func (s *Static) GetQueryDefinition(name string) (*schema.QueryDefinition, error) {
 	// TODO make this O(1). Not an actual perf issue until you have silly configs
 	for _, query := range s.config.Queries {
 		if query.Name == name {

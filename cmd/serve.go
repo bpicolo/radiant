@@ -73,8 +73,8 @@ func configureSearches(cfg *config.RadiantConfig, searchDir string) {
 	}
 }
 
-func readSearchDefinition(path string) (*schema.Query, error) {
-	search := schema.Query{}
+func readSearchDefinition(path string) (*schema.QueryDefinition, error) {
+	search := schema.QueryDefinition{}
 	dat, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
