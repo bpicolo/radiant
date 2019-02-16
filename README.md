@@ -59,6 +59,20 @@ Here's an example search, against a cluster pre-loaded with [Kibana's sample Sha
 backend: main
 index: shakespeare
 name: shakespeare/LinesBySpeaker
+# Schema: Optional jsonschema, which validates your endpoint request data
+schema:
+  type: object
+  properties:
+    speaker:
+      type: string
+      minLength: 2
+      maxLength: 32
+    query:
+      type: array
+      items:
+        type: string
+  required:
+    - speaker
 source: |
   bool:
     filter:
