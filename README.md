@@ -1,7 +1,7 @@
 # Radiant
 
 Radiant is a service abstraction that enables you to facilitate communication with many potential
-Elasticsearch cluster. The primary goal of Radiant is to enable shareable query endpoints to simplify querying from a variety of sources. In addition, it provide built-in support transparent proxies to the registered ES clusters.
+Elasticsearch clusters. The primary goal of Radiant is to enable shareable query endpoints to simplify querying from a variety of sources. In addition, it provides built-in support transparent proxies to the registered ES clusters.
 
 ## Installation
 
